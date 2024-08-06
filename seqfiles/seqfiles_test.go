@@ -1,10 +1,10 @@
 package seqfiles
 
 import (
-    "path/filepath"
 	"github.com/martinghunt/tnahelper/utils"
 	"github.com/stretchr/testify/require"
 	"github.com/udhos/equalfile"
+	"path/filepath"
 	"testing"
 )
 
