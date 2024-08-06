@@ -1,0 +1,5 @@
+Contig1	gene1/gene1_lt	42	60	+
+Contig1	gene2	80	100	-
+Contig1	gene3/gene3_lt	80	100	-
+Contig2	gene42	687	3158	+
+Contig2	gene43	100	200	-

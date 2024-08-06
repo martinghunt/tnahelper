@@ -1,0 +1,99 @@
+LOCUS       Contig1         5028 bp    DNA             PLN       21-JUN-1999
+DEFINITION  blaj blah
+            blah
+ACCESSION   U12345
+VERSION     U12345.1  GI:1234567
+KEYWORDS    .
+SOURCE      Genus species (foo)
+  ORGANISM  Genus species
+            Bacteria; Kingdom; blah; whatever
+REFERENCE   1  (bases 1 to 100)
+  AUTHORS   A. nyone, S. omeone
+  TITLE     This is a title, blah
+            blah blah
+  JOURNAL   Journal of journal things
+  PUBMED    1234567890
+REFERENCE   2  (bases 1 to 100)
+  AUTHORS   B. Dickinson
+  TITLE     Up the irons
+  JOURNAL   NWOBHM
+  PUBMED    12345678901
+FEATURES             Location/Qualifiers
+     source          1..100
+                     /organism="Genus species"
+                     /db_xref="taxon:1"
+                     /chromosome="source1"
+                     /map="9"
+     CDS             <1..206
+                     /codon_start=3
+                     /product="p"
+                     /protein_id="AA42"
+                     /translation="ACACACACACACACACCACACACAACCACACACACACACACACA
+                     ACACACACACCACCCACACCCACA"
+     gene            42..60
+                     /gene="gene1"
+                     /locus_tag="gene1_lt"
+     CDS             42..60
+                     /gene="gene1"
+                     /note="fml"
+                     /codon_start=1
+                     /function="does stuff"
+                     /product="produces this"
+                     /protein_id="AA42"
+                     /translation="CACCACACCCACCACCACCAC"
+     gene            complement(80..100)
+                     /gene="gene2"
+     CDS             complement(80..100)
+                     /gene="gene2"
+                     /codon_start=1
+                     /product="stuff"
+                     /translation="AAAA"
+     gene            complement(80..100)
+                     /gene="gene3"
+                     /locus_tag="gene3_lt"
+ORIGIN
+        1 gatcctccat atacaacggt atctccacct caggtttaga tctcaacaac ggaaccattg
+       61 ccgacatgag acagttaggt atcgtcgaga gttacaagct aaaacgagca gtagtcagct
+      121 ctgcatctga agccgctgaa gttctactaa gggtggataa catcat
+//
+LOCUS       Contig2         5028 bp    DNA             PLN       21-JUN-1999
+DEFINITION  is this a definition
+ACCESSION   U54321
+VERSION     U54321.1  GI:1111111
+KEYWORDS    .
+SOURCE      Genus species
+  ORGANISM  Genus species
+            foo; bar; baz; spam
+REFERENCE   1  (bases 1 to 42)
+  AUTHORS   D. Carey; M. Portnoy; N. Peart
+  TITLE     Is this a title
+  JOURNAL   Octopus journal
+  PUBMED    2112
+FEATURES             Location/Qualifiers
+     source          1..5028
+                     /organism="Foo bar"
+                     /db_xref="taxon:2112"
+                     /chromosome="I"
+     gene            687..3158
+                     /gene="gene42"
+     CDS             687..3158
+                     /note="noted"
+                     /codon_start=1
+                     /function="does some things"
+                     /product="makes some stuff"
+                     /db_xref="GI:2112"
+                     /translation="MAAACACACCACAACCACACAAACACCACACCACACCACACACA
+                     ACCACCACACACA"
+     gene            complement(200..100)
+                     /gene="gene43"
+     CDS             complement(3300..4037)
+                     /gene="REV7"
+                     /codon_start=1
+                     /product="p"
+                     /protein_id="i"
+                     /db_xref="GI:1"
+                     /translation="MACACCACCACACACCACACACCACCACACA"
+ORIGIN
+        1 gatcctccat atacaacggt atctccacct caggtttaga tctcaacaac ggaaccattg
+       61 ccgacatgag acagttaggt atcgtcgaga gttacaagct aaaacgagca gtagtca
+//

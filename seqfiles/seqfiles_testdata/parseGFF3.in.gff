@@ -1,0 +1,13 @@
+##gff-version 3
+# comment
+##sequence-region seq1 1 10
+seq1	.	gene	3	7	.	+	.	ID=gene1;foo=bar;name=name1
+seq2	.	foo	3	7	.	+	.	ID=blah;name=x
+seq2	.	gene	5	9	.	-	.	ID=gene2;foo=bar
+##FASTA
+>seq1
+ACGTACGTAC
+>seq2
+ttgaga
+A
+G
