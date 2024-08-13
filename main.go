@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/martinghunt/tnahelper/seqfiles"
 	"github.com/martinghunt/tnahelper/download"
+	"github.com/martinghunt/tnahelper/seqfiles"
 	"github.com/spf13/cobra"
 )
 
@@ -27,8 +27,7 @@ func main() {
 	rootCmd.AddCommand(cmdImportSeqfile)
 	rootCmd.CompletionOptions.HiddenDefaultCmd = true
 
-
-    var cmdDownloadBinaries = &cobra.Command{
+	var cmdDownloadBinaries = &cobra.Command{
 		Use:   "download_binaries",
 		Short: "Download binary files",
 		Run: func(cmd *cobra.Command, args []string) {
