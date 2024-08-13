@@ -6,11 +6,11 @@ on:
     tags:
       - 'v*.*.*'
     branches:
-      - master
+      - main
       - gh_actions_test
   pull_request:
     branches:
-      - master
+      - main
 
 
 jobs:
