@@ -111,14 +111,14 @@ func downloadBlast(outdir string) error {
 	fmt.Println("Detected OS/architecture:", key)
 	tarballToDownload, exists := BLAST_TARBALLS[key]
 	if !exists {
-		return fmt.Errorf("Cannot download blast binaries. Unknown OS/architecture:", key)
+		return fmt.Errorf("Cannot download blast binaries. Unknown OS/architecture: %v", key)
 	}
 	url := BLAST_FTP_URL + tarballToDownload
 	tmpOut := filepath.Join(outdir, tarballToDownload)
 	fmt.Println("Downloading", url, "to", tmpOut)
 	err := downloadFile(url, tmpOut)
 	if err != nil {
-		return fmt.Errorf("Error downloading", url, " ... error:", err)
+		return fmt.Errorf("Error downloading %v. Error: %v", url, err)
 	}
 	var wanted []string
 	if runtime.GOOS == "windows" {
