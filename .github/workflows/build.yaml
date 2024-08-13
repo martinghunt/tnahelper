@@ -1,0 +1,49 @@
+name: Test and build tnahelper binaries
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*.*.*'
+    branches:
+      - master
+      - gh_actions_test
+  pull_request:
+    branches:
+      - master
+
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-22.04
+    steps:
+
+    - name: Set up Go 1.22.x
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22.x'
+      id: go
+
+    - name: Check out code for the container build
+      uses: actions/checkout@v2
+
+    - name: Set release version if is a release
+      if: startsWith(github.event.ref, 'refs/tags/v')
+      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+    - name: Run tests
+      run: go test -cover -v ./...
+
+    - name: Build binaries
+      if: startsWith(github.event.ref, 'refs/tags/v')
+      run: ./build.sh ${RELEASE_VERSION}
+
+    - name: Release
+      if: startsWith(github.event.ref, 'refs/tags/v')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: tnahelper*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
