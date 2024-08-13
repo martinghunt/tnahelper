@@ -6,8 +6,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var Version = "development"
+
 func main() {
 	rootCmd := &cobra.Command{Use: "tnahelper"}
+	rootCmd.Version = Version
 	var infile string
 	var outprefix string
 	var outdir string
