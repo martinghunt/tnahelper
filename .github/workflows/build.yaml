@@ -25,6 +25,9 @@ jobs:
         go-version: '1.22.x'
       id: go
 
+    - name: Check out code for the container build
+      uses: actions/checkout@v2
+
     - name: Set release version if is a release
       if: startsWith(github.event.ref, 'refs/tags/v')
       run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
