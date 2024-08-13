@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/martinghunt/tnahelper/seqfiles"
+	"github.com/martinghunt/tnahelper/download"
 	"github.com/spf13/cobra"
 )
 
@@ -9,6 +10,7 @@ func main() {
 	rootCmd := &cobra.Command{Use: "tnahelper"}
 	var infile string
 	var outprefix string
+	var outdir string
 
 	var cmdImportSeqfile = &cobra.Command{
 		Use:   "import_seqfile",
@@ -24,5 +26,18 @@ func main() {
 	cmdImportSeqfile.MarkFlagRequired("outprefix")
 	rootCmd.AddCommand(cmdImportSeqfile)
 	rootCmd.CompletionOptions.HiddenDefaultCmd = true
+
+
+    var cmdDownloadBinaries = &cobra.Command{
+		Use:   "download_binaries",
+		Short: "Download binary files",
+		Run: func(cmd *cobra.Command, args []string) {
+			download.DownloadBinaries(outdir)
+		},
+	}
+	cmdDownloadBinaries.Flags().StringVarP(&outdir, "outdir", "o", "", "REQUIRED. Output directory")
+	cmdDownloadBinaries.MarkFlagRequired("outdir")
+	rootCmd.AddCommand(cmdDownloadBinaries)
+
 	rootCmd.Execute()
 }
