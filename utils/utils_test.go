@@ -25,3 +25,12 @@ func TestDeleteFileIfExists(t *testing.T) {
 	require.False(t, FileExists(outfile), "File should not exist: %v", outfile)
 	DeleteFileIfExists(outfile) // run again, should not throw error
 }
+
+func TestCopyFile(t *testing.T) {
+	infile := filepath.Join("utils_testdata", "copyFile")
+	outfile := "tmp.test.CopyFile.out"
+	DeleteFileIfExists(outfile)
+	CopyFile(infile, outfile)
+	require.True(t, FileExists(outfile), "File should exist: %v", outfile)
+	DeleteFileIfExists(outfile)
+}
