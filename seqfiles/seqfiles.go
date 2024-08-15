@@ -83,7 +83,8 @@ func parseFastaFile(infile string, outfile string) {
 			} else {
 				fout.WriteString("\n")
 			}
-			fout.WriteString(line)
+			fields := strings.Split(line, " ")
+			fout.WriteString(fields[0] + "\n")
 		} else {
 			fout.WriteString(strings.ToUpper(strings.TrimSpace(line)))
 		}
