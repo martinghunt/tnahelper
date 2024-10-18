@@ -7,11 +7,16 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+    "runtime"
 )
 
 func RunBlast(workingDir string, binDir string) {
 	makeblastdb := filepath.Join(binDir, "makeblastdb")
 	blastn := filepath.Join(binDir, "blastn")
+	if runtime.GOOS == "windows" {
+        makeblastdb += ".exe"
+        blastn += ".exe"
+    }
 
 	tempDir, err := os.MkdirTemp("", "tna-blast-")
 	if err != nil {
