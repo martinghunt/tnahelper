@@ -4,6 +4,7 @@ import (
 	"github.com/martinghunt/tnahelper/blast"
 	"github.com/martinghunt/tnahelper/download"
 	"github.com/martinghunt/tnahelper/seqfiles"
+	"github.com/martinghunt/tnahelper/example_data"
 	"github.com/spf13/cobra"
 )
 
@@ -50,11 +51,22 @@ func main() {
 			blast.RunBlast(outdir, bindir)
 		},
 	}
-	cmdBlast.Flags().StringVarP(&outdir, "outdir", "o", "", "REQUIRED. Output directory. Must already exist and have fasta giles g1.fa,g2.fa")
+	cmdBlast.Flags().StringVarP(&outdir, "outdir", "o", "", "REQUIRED. Output directory. Must already exist and have fasta files g1.fa,g2.fa")
 	cmdBlast.Flags().StringVarP(&bindir, "bindir", "b", "", "REQUIRED. Bin directory, must contain makeblastdb,blastn")
 	cmdBlast.MarkFlagRequired("outdir")
 	cmdBlast.MarkFlagRequired("bindir")
 	rootCmd.AddCommand(cmdBlast)
+
+	var cmdExampleData = &cobra.Command{
+		Use:   "make_example_data",
+		Short: "Make example data for testing TNA",
+		Run: func(cmd *cobra.Command, args []string) {
+			example_data.MakeTestFiles(outdir)
+		},
+	}
+	cmdExampleData.Flags().StringVarP(&outdir, "outdir", "o", "", "REQUIRED. Output directory. Will be created if doesn't exist")
+	cmdExampleData.MarkFlagRequired("outdir")
+	rootCmd.AddCommand(cmdExampleData)
 
 	rootCmd.Execute()
 }
