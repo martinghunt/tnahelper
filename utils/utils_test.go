@@ -34,3 +34,10 @@ func TestCopyFile(t *testing.T) {
 	require.True(t, FileExists(outfile), "File should exist: %v", outfile)
 	DeleteFileIfExists(outfile)
 }
+
+func TestReverseComplement(t *testing.T) {
+	seq := []byte("ACCGTN")
+	expect := []byte("NACGGT")
+	rev := ReverseComplement(seq)
+	require.Equal(t, string(rev), string(expect), "Error reverse complement. Got: %s", rev)
+}

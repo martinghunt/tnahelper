@@ -34,3 +34,21 @@ func CopyFile(sourceFile string, destFile string) {
 		log.Fatalf("Error writing file: %v", err)
 	}
 }
+
+func ReverseComplement(seq []byte) []byte {
+	revcomp := make([]byte, len(seq))
+
+	comp := map[byte]byte{
+		'A': 'T',
+		'T': 'A',
+		'C': 'G',
+		'G': 'C',
+		'N': 'N',
+	}
+
+	for i := 0; i < len(seq); i++ {
+		revcomp[len(seq)-1-i] = comp[seq[i]]
+	}
+
+	return revcomp
+}
