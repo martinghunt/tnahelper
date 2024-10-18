@@ -47,7 +47,7 @@ func TestParseGFF3(t *testing.T) {
 	outprefix := "tmp.test.ParseGFF3"
 	outfileFa := outprefix + ".fa"
 	utils.DeleteFileIfExists(outfileFa)
-	outfileAnnot := outprefix + ".annot"
+	outfileAnnot := outprefix + ".gff"
 	utils.DeleteFileIfExists(outfileAnnot)
 	ParseSeqFile(infile, outprefix)
 
@@ -58,7 +58,7 @@ func TestParseGFF3(t *testing.T) {
 	require.True(t, filesEqual, "FASTA file %s expected contents incorrect", outfileFa)
 	utils.DeleteFileIfExists(outfileFa)
 
-	expectFileAnnot := filepath.Join("seqfiles_testdata", "parseGFF3.expect.annot")
+	expectFileAnnot := filepath.Join("seqfiles_testdata", "parseGFF3.expect.gff")
 	filesEqual, err = cmp.CompareFile(expectFileAnnot, outfileAnnot)
 	require.NoError(t, err, "Error comparing annotation files %s, %s", expectFileFa, outfileFa)
 	require.True(t, filesEqual, "Annotation file %s expected contents incorrect", outfileFa)
@@ -72,7 +72,7 @@ func TestParseGenbank(t *testing.T) {
 	outprefix := "tmp.test.ParseGenbank"
 	outfileFa := outprefix + ".fa"
 	utils.DeleteFileIfExists(outfileFa)
-	outfileAnnot := outprefix + ".annot"
+	outfileAnnot := outprefix + ".gff"
 	utils.DeleteFileIfExists(outfileAnnot)
 	ParseSeqFile(infile, outprefix)
 
@@ -83,7 +83,7 @@ func TestParseGenbank(t *testing.T) {
 	require.True(t, filesEqual, "FASTA file %s expected contents incorrect", outfileFa)
 	utils.DeleteFileIfExists(outfileFa)
 
-	expectFileAnnot := filepath.Join("seqfiles_testdata", "parseGenbank.expect.annot")
+	expectFileAnnot := filepath.Join("seqfiles_testdata", "parseGenbank.expect.gff")
 	filesEqual, err = cmp.CompareFile(expectFileAnnot, outfileAnnot)
 	require.NoError(t, err, "Error comparing annotation files %s, %s", expectFileFa, outfileFa)
 	require.True(t, filesEqual, "Annotation file %s expected contents incorrect", outfileFa)

@@ -171,6 +171,7 @@ func parseGenbankFile(infile string, outfileSeqs string, outfileAnnot string) {
 	genePrefix := "                     /gene="
 	locustagPrefix := "                     /locus_tag"
 	currentContig := "UNKNOWN"
+	foutAnnot.WriteString("##gff-version 3\n")
 
 	for {
 		line, err := reader.ReadString('\n')
@@ -198,7 +199,8 @@ func parseGenbankFile(infile string, outfileSeqs string, outfileAnnot string) {
 			if strings.HasPrefix(line, "ORIGIN") {
 				inFeatures = false
 				if inGene {
-					foutAnnot.WriteString(fmt.Sprintf("%v\t%v\t%v\t%v\t%v\n", currentContig, geneName, geneStart, geneEnd, geneStrand))
+					//foutAnnot.WriteString(fmt.Sprintf("%v\t%v\t%v\t%v\t%v\n", currentContig, geneName, geneStart, geneEnd, geneStrand))
+					foutAnnot.WriteString(fmt.Sprintf("%v\t.\tgene\t%v\t%v\t.\t%v\t.\tID=%v\n", currentContig, geneStart, geneEnd, geneStrand, geneName))
 					geneName = ""
 					geneStart = 0
 					geneEnd = 0
@@ -218,7 +220,8 @@ func parseGenbankFile(infile string, outfileSeqs string, outfileAnnot string) {
 					}
 					geneName += strings.TrimSpace(strings.ReplaceAll(fields[1], "\"", ""))
 				} else if line[5] != ' ' {
-					foutAnnot.WriteString(fmt.Sprintf("%v\t%v\t%v\t%v\t%v\n", currentContig, geneName, geneStart, geneEnd, geneStrand))
+					//foutAnnot.WriteString(fmt.Sprintf("%v\t%v\t%v\t%v\t%v\n", currentContig, geneName, geneStart, geneEnd, geneStrand))
+					foutAnnot.WriteString(fmt.Sprintf("%v\t.\tgene\t%v\t%v\t.\t%v\t.\tID=%v\n", currentContig, geneStart, geneEnd, geneStrand, geneName))
 					inGene = false
 					geneName = ""
 					geneStart = 0
@@ -263,17 +266,6 @@ func parseGenbankFile(infile string, outfileSeqs string, outfileAnnot string) {
 	foutAnnot.Flush()
 }
 
-func nameFromGff3Col8(col8 string) string {
-	keysVals := strings.Split(col8, ";")
-	names := []string{}
-	for _, s := range keysVals {
-		if strings.HasPrefix(s, "ID=") || strings.HasPrefix(s, "name=") {
-			names = append(names, strings.TrimSpace(strings.Split(s, "=")[1]))
-		}
-	}
-	return strings.Join(names, "/")
-}
-
 func parseGFF3File(infile string, outfileSeqs string, outfileAnnot string) {
 	reader, err := xopen.Ropen(infile)
 	if err != nil {
@@ -296,6 +288,7 @@ func parseGFF3File(infile string, outfileSeqs string, outfileAnnot string) {
 	defer foutAnnot.Close()
 	firstSeq := true
 	inFasta := false
+	foutAnnot.WriteString("##gff-version 3\n")
 
 	for {
 		line, err := reader.ReadString('\n')
@@ -327,11 +320,7 @@ func parseGFF3File(infile string, outfileSeqs string, outfileAnnot string) {
 				foutSeqs.WriteString(strings.ToUpper(strings.TrimSpace(line)))
 			}
 		} else {
-			fields := strings.Split(line, "\t")
-			if fields[2] == "gene" {
-				name := nameFromGff3Col8(fields[8])
-				foutAnnot.WriteString(fmt.Sprintf("%v\t%v\t%v\t%v\t%v\n", fields[0], name, fields[3], fields[4], fields[6]))
-			}
+			foutAnnot.WriteString(line)
 		}
 	}
 	foutSeqs.WriteString("\n")
@@ -342,7 +331,7 @@ func parseGFF3File(infile string, outfileSeqs string, outfileAnnot string) {
 func ParseSeqFile(infile string, outprefix string) {
 	filetype := getFileType(infile)
 	fastaOutfile := outprefix + ".fa"
-	annotOutfile := outprefix + ".annot"
+	annotOutfile := outprefix + ".gff"
 	switch filetype {
 	case FASTA:
 		parseFastaFile(infile, fastaOutfile)
