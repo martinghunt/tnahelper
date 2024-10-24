@@ -167,11 +167,11 @@ func parseGenbankFile(infile string, outfileSeqs string, outfileAnnot string) {
 	geneStrand := ""
 	geneName := ""
 	seqReplaceRe := regexp.MustCompile(`[\s0-9]`)
-	coordsReplaceRe := regexp.MustCompile(`[^0-9\.]`)
 	genePrefix := "                     /gene="
 	locustagPrefix := "                     /locus_tag"
 	currentContig := "UNKNOWN"
 	foutAnnot.WriteString("##gff-version 3\n")
+	nonNumberRe := regexp.MustCompile(`\D+`)
 
 	for {
 		line, err := reader.ReadString('\n')
@@ -240,12 +240,20 @@ func parseGenbankFile(infile string, outfileSeqs string, outfileAnnot string) {
 					geneStrand = "+"
 				}
 
-				fields[1] = coordsReplaceRe.ReplaceAllString(fields[1], "")
-				coords := strings.Split(fields[1], "..")
-				geneStart, _ = strconv.Atoi(coords[0])
-				geneEnd, _ = strconv.Atoi(coords[1])
-				if geneEnd < geneStart {
-					geneStart, geneEnd = geneEnd, geneStart
+				coords := nonNumberRe.Split(fields[1], -1)
+				geneStart = -1
+				geneEnd = -1
+				for _, s := range coords {
+					if s == "" {
+						continue
+					}
+					c, _ := strconv.Atoi(s)
+					if geneStart == -1 || c < geneStart {
+						geneStart = c
+					}
+					if geneEnd == -1 || c > geneEnd {
+						geneEnd = c
+					}
 				}
 				geneName = "UNKNOWN"
 			}

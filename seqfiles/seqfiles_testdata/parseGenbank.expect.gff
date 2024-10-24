@@ -2,5 +2,6 @@
 Contig1	.	gene	42	60	.	+	.	ID=gene1/gene1_lt
 Contig1	.	gene	80	100	.	-	.	ID=gene2
 Contig1	.	gene	80	100	.	-	.	ID=gene3/gene3_lt
+Contig1	.	gene	20	29	.	+	.	ID=gene4
 Contig2	.	gene	687	3158	.	+	.	ID=gene42
 Contig2	.	gene	100	200	.	-	.	ID=gene43
