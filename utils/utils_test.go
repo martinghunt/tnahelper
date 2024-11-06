@@ -41,3 +41,10 @@ func TestReverseComplement(t *testing.T) {
 	rev := ReverseComplement(seq)
 	require.Equal(t, string(rev), string(expect), "Error reverse complement. Got: %s", rev)
 }
+
+func TestReverse(t *testing.T) {
+	fwd := "ABCDE"
+	rev := "EDCBA"
+	got := Reverse(fwd)
+	require.Equal(t, rev, got, "Error Reverse. Got: %s", got)
+}

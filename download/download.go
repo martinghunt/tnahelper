@@ -120,11 +120,13 @@ func downloadBlast(outdir string) error {
 	if err != nil {
 		return fmt.Errorf("Error downloading %v. Error: %v", url, err)
 	}
+	// Comment out tblastx for now, since we don't support it but
+	// might in the future
 	var wanted []string
 	if runtime.GOOS == "windows" {
-		wanted = []string{"blastn.exe", "blastn.exe.manifest", "makeblastdb.exe", "makeblastdb.exe.manifest"}
+		wanted = []string{"blastn.exe", "blastn.exe.manifest", "makeblastdb.exe", "makeblastdb.exe.manifest"} //, "tblastx", "tblastx.exe"}
 	} else {
-		wanted = []string{"blastn", "makeblastdb"}
+		wanted = []string{"blastn", "makeblastdb"} //, "tblastx"}
 	}
 	extractGzipTarball(tmpOut, outdir, wanted)
 	err = os.Remove(tmpOut)
