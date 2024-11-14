@@ -124,7 +124,7 @@ func downloadBlast(outdir string) error {
 	// might in the future
 	var wanted []string
 	if runtime.GOOS == "windows" {
-		wanted = []string{"blastn.exe", "blastn.exe.manifest", "makeblastdb.exe", "makeblastdb.exe.manifest"} //, "tblastx", "tblastx.exe"}
+		wanted = []string{"nghttp2.dll", "blastn.exe", "blastn.exe.manifest", "makeblastdb.exe", "makeblastdb.exe.manifest"} //, "tblastx", "tblastx.exe"}
 	} else {
 		wanted = []string{"blastn", "makeblastdb"} //, "tblastx"}
 	}
