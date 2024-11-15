@@ -22,6 +22,15 @@ func TestParseFASTA(t *testing.T) {
 	require.NoError(t, err, "Error comparing FASTA files %s, %s", expectFile, outfile)
 	require.True(t, filesEqual, "FASTA file %s expected contents incorrect", outfile)
 	utils.DeleteFileIfExists(outfile)
+
+	infile = filepath.Join("seqfiles_testdata", "parseFasta.no_final_newline.in.fa")
+	expectFile = filepath.Join("seqfiles_testdata", "parseFasta.no_final_newline.expect.fa")
+	ParseSeqFile(infile, outprefix)
+	filesEqual, err = cmp.CompareFile(expectFile, outfile)
+	require.NoError(t, err, "Error comparing FASTA files %s, %s", expectFile, outfile)
+	require.True(t, filesEqual, "FASTA file %s expected contents incorrect", outfile)
+	utils.DeleteFileIfExists(outfile)
+
 }
 
 func TestParseFASTQ(t *testing.T) {

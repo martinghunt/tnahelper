@@ -70,6 +70,9 @@ func parseFastaFile(infile string, outfile string) {
 		line, err := reader.ReadString('\n')
 		if err != nil {
 			if err == io.EOF {
+				if len(line) > 0 { // ie last line of file has no newline
+					fout.WriteString(strings.ToUpper(strings.TrimSpace(line)))
+				}
 				break
 			}
 
