@@ -48,18 +48,20 @@ func main() {
 
 	// ------------------ blast ----------------------------
 	var blastType string
+	var blastSendUsageReport bool
 	var cmdBlast = &cobra.Command{
 		Use:   "blast",
 		Short: "Run makeblastdb and blastn",
 		Run: func(cmd *cobra.Command, args []string) {
 			// args has anything that's put after "--" on the command line
-			blast.RunBlast(outdir, bindir, "blastn", args)
+			blast.RunBlast(outdir, bindir, "blastn", blastSendUsageReport, args)
 		},
 	}
 
 	cmdBlast.Flags().StringVarP(&blastType, "blast_type", "t", "", "Placeholder, is ignored for now. Blast type. Is forced to be blastn (tblastx support may come in the future)")
 	cmdBlast.Flags().StringVarP(&outdir, "outdir", "o", "", "REQUIRED. Output directory. Must already exist and have fasta files g1.fa,g2.fa")
 	cmdBlast.Flags().StringVarP(&bindir, "bindir", "b", "", "REQUIRED. Bin directory, must contain makeblastdb,blastn")
+	cmdBlast.Flags().BoolVar(&blastSendUsageReport, "send_usage_report", false, "Use this flag to enable sending a usage report to NCBI when blast runs")
 	cmdBlast.MarkFlagRequired("outdir")
 	cmdBlast.MarkFlagRequired("bindir")
 	rootCmd.AddCommand(cmdBlast)

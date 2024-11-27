@@ -124,7 +124,7 @@ func ParseBlastFile(infile string, outfile string, blastType string) {
 	}
 }
 
-func RunBlast(workingDir string, binDir string, blastType string, extraOptions []string) {
+func RunBlast(workingDir string, binDir string, blastType string, sendUsageReport bool, extraOptions []string) {
 	fmt.Println("Extra options:", extraOptions)
 	makeblastdb := filepath.Join(binDir, "makeblastdb")
 	blastProgram := filepath.Join(binDir, blastType)
@@ -146,6 +146,10 @@ func RunBlast(workingDir string, binDir string, blastType string, extraOptions [
 	blastdb := filepath.Join(tempDir, "blast_db")
 	fmt.Println("Running makeblastdb", makeblastdb)
 	command := exec.Command(makeblastdb, "-dbtype", "nucl", "-in", ref, "-out", blastdb)
+	if !sendUsageReport {
+		fmt.Println("setting BLAST_USAGE_REPORT=false before running")
+		command.Env = append(os.Environ(), "BLAST_USAGE_REPORT=false")
+	}
 	output, err := command.CombinedOutput()
 	if err != nil {
 		os.RemoveAll(tempDir)
@@ -162,6 +166,10 @@ func RunBlast(workingDir string, binDir string, blastType string, extraOptions [
 	var commandline = append([]string{"-db", blastdb, "-query", qry, "-out", blast_out_tmp, "-outfmt", "6 qseqid sseqid pident qstart qend sstart send qseq sseq"}, extraOptions...)
 	fmt.Println("Going to run this blast command:", blastProgram, strings.Join(commandline, " "))
 	command = exec.Command(blastProgram, commandline...)
+	if !sendUsageReport {
+		fmt.Println("setting BLAST_USAGE_REPORT=false before running")
+		command.Env = append(os.Environ(), "BLAST_USAGE_REPORT=false")
+	}
 	output, err = command.CombinedOutput()
 	if err != nil {
 		os.RemoveAll(tempDir)
