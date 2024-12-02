@@ -23,6 +23,14 @@ func DeleteFileIfExists(filename string) {
 	}
 }
 
+func RenameFile(oldName string, newName string) {
+	err := os.Rename(oldName, newName)
+	if err != nil {
+		log.Fatalf("Error renaming file %s -> %s: %v", oldName, newName, err)
+	}
+}
+
+
 func CopyFile(sourceFile string, destFile string) {
 	fin, err := ioutil.ReadFile(sourceFile)
 	if err != nil {
