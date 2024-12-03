@@ -1,15 +1,49 @@
 package download
 
+/*
+Notes on accessions and genome downloads.
+
+Assemblies:
+can be downloaded using 'datasets' REST API. These are accessions
+like GCF_000008865.2 or GCA_000008865.2. The URL is:
+https://api.ncbi.nlm.nih.gov/datasets/v2/genome/accession/GCF_000008865.2/download?include_annotation_type=GENOME_FASTA&include_annotation_type=GENOME_GFF
+
+It gives you a zip file which is a bit of a zip bomb. Unzipping gives you
+README.md and md5sum.txt files in CWD. And then ncbi_dataset/ directory that
+has the files we want. Output from unzip:
+Archive:  test.zip
+  inflating: README.md
+  inflating: ncbi_dataset/data/assembly_data_report.jsonl
+  inflating: ncbi_dataset/data/GCF_000008865.2/GCF_000008865.2_ASM886v2_genomic.fna
+  inflating: ncbi_dataset/data/GCF_000008865.2/genomic.gff
+  inflating: ncbi_dataset/data/dataset_catalog.json
+  inflating: md5sum.txt
+
+We'll want the *.fna and genomic.gff files.
+
+
+GenBank:
+accessions like NC_000913.3 can be downloaded with 2 calls: one for the fasta
+and the other for the gff3:
+https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=NC_000913.3&db=nuccore&report=gff3&retmode=text
+https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=NC_000913&db=nuccore&report=fasta&retmode=text
+
+*/
+
 import (
 	"archive/tar"
+	"archive/zip"
 	"compress/gzip"
 	"fmt"
+	"github.com/martinghunt/tnahelper/seqfiles"
+	"github.com/martinghunt/tnahelper/utils"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 const BLAST_FTP_URL = "https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.16.0/"
@@ -145,4 +179,104 @@ func DownloadBinaries(outdir string) {
 	if err != nil {
 		log.Fatalf("Error downloading blast binaries %v", err)
 	}
+}
+
+func FastaAndGffFromZip(zipfile string, outprefix string) {
+	zipReader, err := zip.OpenReader(zipfile)
+	if err != nil {
+		log.Fatalf("Error opening ZIP file %s. This probably means a bad accession. Error: %v", zipfile, err)
+	}
+	defer zipReader.Close()
+
+	for _, file := range zipReader.File {
+		outfile := ""
+		if strings.HasSuffix(file.Name, ".fna") {
+			outfile = outprefix + ".fa"
+			fmt.Println("Extract fasta", file.Name, "to", outfile)
+		} else if strings.HasSuffix(file.Name, ".gff") {
+			outfile = outprefix + ".gff"
+			fmt.Println("Extract gff", file.Name, "to", outfile)
+		}
+		if outfile == "" {
+			continue
+		}
+		toExtract, err := file.Open()
+		if err != nil {
+			log.Fatalf("Error opening %s: %v", file.Name, err)
+		}
+		defer toExtract.Close()
+
+		fout, err := os.Create(outfile)
+		if err != nil {
+			log.Fatalf("Error opening %s: %v", outfile, err)
+		}
+		defer fout.Close()
+
+		_, err = io.Copy(fout, toExtract)
+		if err != nil {
+			log.Fatalf("Error copying contents of file from %s to %s: %v", file.Name, outfile, err)
+		}
+	}
+}
+
+func DownloadGenomeWithDatasetsAPI(accession string, outprefix string) {
+	tmp_dir := outprefix + ".tmp"
+	err := os.MkdirAll(tmp_dir, 0755)
+	if err != nil {
+		log.Fatalf("Error making temp dir for downloaded files: %s", tmp_dir)
+	}
+	tmp_zip_file := filepath.Join(tmp_dir, "dl.zip")
+	url := fmt.Sprintf("https://api.ncbi.nlm.nih.gov/datasets/v2/genome/accession/%s/download?include_annotation_type=GENOME_FASTA&include_annotation_type=GENOME_GFF", accession)
+	err = downloadFile(url, tmp_zip_file)
+	if err != nil {
+		log.Fatalf("Error downloading '%s' from NCBI (url: %s)\nError: %s", accession, url, err)
+	}
+
+	fmt.Println("Downloaded zip file from URL:", url)
+	FastaAndGffFromZip(tmp_zip_file, outprefix)
+	utils.DeleteFileIfExists(tmp_zip_file)
+	utils.DeleteFileIfExists(tmp_dir)
+}
+
+func DownloadGenomeFromGenBank(accession string, outprefix string) {
+	url := fmt.Sprintf("https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=%s&db=nuccore&report=fasta&retmode=text", accession)
+	fastaOut := outprefix + ".fa"
+	fmt.Println("Getting FASTA: ", url)
+	err := downloadFile(url, fastaOut)
+	if err != nil {
+		log.Fatalf("Error downloading FASTA file for '%s' from NCBI (url: %s)\nError: %s", accession, url, err)
+	}
+
+	url = fmt.Sprintf("https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=%s&db=nuccore&report=gff3&retmode=text", accession)
+	gffOut := outprefix + ".gff"
+	fmt.Println("Getting GFF (if it exists): ", url)
+	err = downloadFile(url, gffOut)
+	if err != nil {
+		fmt.Println("Didn't get gff file, but carrying on because FASTA is ok")
+	}
+}
+
+func DownloadGenome(accession string, outprefix string) error {
+	if strings.HasPrefix(accession, "GCF_") || strings.HasPrefix(accession, "GCA_") {
+		DownloadGenomeWithDatasetsAPI(accession, outprefix)
+	} else {
+		DownloadGenomeFromGenBank(accession, outprefix)
+	}
+	dlFa := outprefix + ".fa"
+	if !utils.FileExists(dlFa) {
+		log.Fatalf("FASTA file not downloaded")
+	}
+	tmpFa := outprefix + ".tmp.fa"
+	seqfiles.ParseSeqFile(dlFa, outprefix+".tmp")
+	utils.RenameFile(tmpFa, dlFa)
+
+	// File we get that's supposed to be GFF3 can be HTML file if something
+	// is wrong. Delete if it's not GFF3
+	gff := outprefix + ".gff"
+	if utils.FileExists(gff) && seqfiles.GetFileType(gff) != seqfiles.GFF3 {
+		fmt.Println("Bad format of GFF file (probably no GFF exists for the accession). Delete it")
+		utils.DeleteFileIfExists(gff)
+	}
+
+	return nil
 }

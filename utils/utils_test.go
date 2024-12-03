@@ -3,6 +3,7 @@ package utils
 import (
 	"github.com/shenwei356/xopen"
 	"github.com/stretchr/testify/require"
+	"os"
 	"path/filepath"
 	"testing"
 )
@@ -24,6 +25,21 @@ func TestDeleteFileIfExists(t *testing.T) {
 	DeleteFileIfExists(outfile)
 	require.False(t, FileExists(outfile), "File should not exist: %v", outfile)
 	DeleteFileIfExists(outfile) // run again, should not throw error
+}
+
+func TestRenameFile(t *testing.T) {
+	oldName := "tmp.rename_old"
+	newName := "tmp.rename_new"
+	DeleteFileIfExists(oldName)
+	DeleteFileIfExists(newName)
+	file, err := os.Create(oldName)
+	require.Equal(t, err, nil, "Error opening test file for writing: %v", oldName)
+	file.Close()
+	require.True(t, FileExists(oldName), "File should exist: %v", oldName)
+	RenameFile(oldName, newName)
+	require.False(t, FileExists(oldName), "File should not exist: %v", oldName)
+	require.True(t, FileExists(newName), "File should exist: %v", newName)
+	DeleteFileIfExists(newName)
 }
 
 func TestCopyFile(t *testing.T) {

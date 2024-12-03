@@ -46,6 +46,21 @@ func main() {
 	cmdDownloadBinaries.MarkFlagRequired("outdir")
 	rootCmd.AddCommand(cmdDownloadBinaries)
 
+	// ---------------- download_genome --------------------
+	var accession string
+	var cmdDownloadGenome = &cobra.Command{
+		Use:   "download_genome",
+		Short: "Download genome file(s)",
+		Run: func(cmd *cobra.Command, args []string) {
+			download.DownloadGenome(accession, outprefix)
+		},
+	}
+	cmdDownloadGenome.Flags().StringVarP(&accession, "accession", "a", "", "REQUIRED. Accession to download")
+	cmdDownloadGenome.MarkFlagRequired("accession")
+	cmdDownloadGenome.Flags().StringVarP(&outprefix, "outprefix", "o", "", "REQUIRED. Output prefix")
+	cmdDownloadGenome.MarkFlagRequired("outprefix")
+	rootCmd.AddCommand(cmdDownloadGenome)
+
 	// ------------------ blast ----------------------------
 	var blastType string
 	var blastSendUsageReport bool
