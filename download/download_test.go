@@ -1,10 +1,10 @@
 package download
 
 import (
+	"github.com/martinghunt/tnahelper/utils"
 	"github.com/stretchr/testify/require"
 	"path/filepath"
 	"testing"
-	"github.com/martinghunt/tnahelper/utils"
 )
 
 func TestFastaAndGffFromZipOK(t *testing.T) {
@@ -21,7 +21,6 @@ func TestFastaAndGffFromZipOK(t *testing.T) {
 	utils.DeleteFileIfExists(gff)
 }
 
-
 func TestFastaAndGffFromZipNoGFF(t *testing.T) {
 	zipfile := filepath.Join("download_testdata", "fastaAndGffFromZip_no_gff.zip")
 	outprefix := "tmp.TestFastaAndGffFromZip_no_gff"
@@ -35,7 +34,6 @@ func TestFastaAndGffFromZipNoGFF(t *testing.T) {
 	utils.DeleteFileIfExists(fa)
 }
 
-
 func TestFastaAndGffFromZipNoFasta(t *testing.T) {
 	zipfile := filepath.Join("download_testdata", "fastaAndGffFromZip_no_fasta.zip")
 	outprefix := "tmp.TestFastaAndGffFromZip_no_fasta"
@@ -47,4 +45,3 @@ func TestFastaAndGffFromZipNoFasta(t *testing.T) {
 	require.False(t, utils.FileExists(fa), "FASTA file found %s", fa)
 	require.False(t, utils.FileExists(gff), "GFF file found %s", gff)
 }
-

@@ -1,9 +1,9 @@
 package utils
 
 import (
-	"os"
 	"github.com/shenwei356/xopen"
 	"github.com/stretchr/testify/require"
+	"os"
 	"path/filepath"
 	"testing"
 )
@@ -27,7 +27,6 @@ func TestDeleteFileIfExists(t *testing.T) {
 	DeleteFileIfExists(outfile) // run again, should not throw error
 }
 
-
 func TestRenameFile(t *testing.T) {
 	oldName := "tmp.rename_old"
 	newName := "tmp.rename_new"
@@ -42,7 +41,6 @@ func TestRenameFile(t *testing.T) {
 	require.True(t, FileExists(newName), "File should exist: %v", newName)
 	DeleteFileIfExists(newName)
 }
-
 
 func TestCopyFile(t *testing.T) {
 	infile := filepath.Join("utils_testdata", "copyFile")

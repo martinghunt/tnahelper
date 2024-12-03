@@ -30,7 +30,6 @@ func RenameFile(oldName string, newName string) {
 	}
 }
 
-
 func CopyFile(sourceFile string, destFile string) {
 	fin, err := ioutil.ReadFile(sourceFile)
 	if err != nil {

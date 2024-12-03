@@ -35,6 +35,8 @@ import (
 	"archive/zip"
 	"compress/gzip"
 	"fmt"
+	"github.com/martinghunt/tnahelper/seqfiles"
+	"github.com/martinghunt/tnahelper/utils"
 	"io"
 	"log"
 	"net/http"
@@ -42,8 +44,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"github.com/martinghunt/tnahelper/utils"
-	"github.com/martinghunt/tnahelper/seqfiles"
 )
 
 const BLAST_FTP_URL = "https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.16.0/"
@@ -181,11 +181,10 @@ func DownloadBinaries(outdir string) {
 	}
 }
 
-
 func FastaAndGffFromZip(zipfile string, outprefix string) {
 	zipReader, err := zip.OpenReader(zipfile)
 	if err != nil {
-        log.Fatalf("Error opening ZIP file %s. This probably means a bad accession. Error: %v", zipfile, err)
+		log.Fatalf("Error opening ZIP file %s. This probably means a bad accession. Error: %v", zipfile, err)
 	}
 	defer zipReader.Close()
 
@@ -220,7 +219,6 @@ func FastaAndGffFromZip(zipfile string, outprefix string) {
 	}
 }
 
-
 func DownloadGenomeWithDatasetsAPI(accession string, outprefix string) {
 	tmp_dir := outprefix + ".tmp"
 	err := os.MkdirAll(tmp_dir, 0755)
@@ -240,7 +238,6 @@ func DownloadGenomeWithDatasetsAPI(accession string, outprefix string) {
 	utils.DeleteFileIfExists(tmp_dir)
 }
 
-
 func DownloadGenomeFromGenBank(accession string, outprefix string) {
 	url := fmt.Sprintf("https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=%s&db=nuccore&report=fasta&retmode=text", accession)
 	fastaOut := outprefix + ".fa"
@@ -259,7 +256,6 @@ func DownloadGenomeFromGenBank(accession string, outprefix string) {
 	}
 }
 
-
 func DownloadGenome(accession string, outprefix string) error {
 	if strings.HasPrefix(accession, "GCF_") || strings.HasPrefix(accession, "GCA_") {
 		DownloadGenomeWithDatasetsAPI(accession, outprefix)
@@ -271,7 +267,7 @@ func DownloadGenome(accession string, outprefix string) error {
 		log.Fatalf("FASTA file not downloaded")
 	}
 	tmpFa := outprefix + ".tmp.fa"
-	seqfiles.ParseSeqFile(dlFa, outprefix + ".tmp")
+	seqfiles.ParseSeqFile(dlFa, outprefix+".tmp")
 	utils.RenameFile(tmpFa, dlFa)
 
 	// File we get that's supposed to be GFF3 can be HTML file if something
@@ -284,4 +280,3 @@ func DownloadGenome(accession string, outprefix string) error {
 
 	return nil
 }
-
