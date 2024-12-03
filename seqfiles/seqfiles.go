@@ -20,7 +20,7 @@ const (
 	GENBANK
 )
 
-func getFileType(filename string) FileFormat {
+func GetFileType(filename string) FileFormat {
 	reader, err := xopen.Ropen(filename)
 	if err != nil {
 		log.Fatalf("Error opening file %v: %v", filename, err)
@@ -45,7 +45,6 @@ func getFileType(filename string) FileFormat {
 	} else if strings.HasPrefix(line, "LOCUS ") {
 		return GENBANK
 	}
-	log.Fatalf("Cannot determine type of input file %v", filename)
 	return Unknown
 }
 
@@ -340,7 +339,7 @@ func parseGFF3File(infile string, outfileSeqs string, outfileAnnot string) {
 }
 
 func ParseSeqFile(infile string, outprefix string) {
-	filetype := getFileType(infile)
+	filetype := GetFileType(infile)
 	fastaOutfile := outprefix + ".fa"
 	annotOutfile := outprefix + ".gff"
 	switch filetype {

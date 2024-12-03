@@ -42,7 +42,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"time"
 	"github.com/martinghunt/tnahelper/utils"
 	"github.com/martinghunt/tnahelper/seqfiles"
 )
@@ -186,7 +185,7 @@ func DownloadBinaries(outdir string) {
 func FastaAndGffFromZip(zipfile string, outprefix string) {
 	zipReader, err := zip.OpenReader(zipfile)
 	if err != nil {
-		log.Fatalf("Error opening ZIP file %s: %v", zipfile, err)
+        log.Fatalf("Error opening ZIP file %s. This probably means a bad accession. Error: %v", zipfile, err)
 	}
 	defer zipReader.Close()
 
@@ -222,7 +221,7 @@ func FastaAndGffFromZip(zipfile string, outprefix string) {
 }
 
 
-func DownloadGenomeWithDatasetsAPI(accession string, outprefix string, result chan error) {
+func DownloadGenomeWithDatasetsAPI(accession string, outprefix string) {
 	tmp_dir := outprefix + ".tmp"
 	err := os.MkdirAll(tmp_dir, 0755)
 	if err != nil {
@@ -239,11 +238,10 @@ func DownloadGenomeWithDatasetsAPI(accession string, outprefix string, result ch
 	FastaAndGffFromZip(tmp_zip_file, outprefix)
 	utils.DeleteFileIfExists(tmp_zip_file)
 	utils.DeleteFileIfExists(tmp_dir)
-	result <- nil
 }
 
 
-func DownloadGenomeFromGenBank(accession string, outprefix string, result chan error) {
+func DownloadGenomeFromGenBank(accession string, outprefix string) {
 	url := fmt.Sprintf("https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=%s&db=nuccore&report=fasta&retmode=text", accession)
 	fastaOut := outprefix + ".fa"
 	fmt.Println("Getting FASTA: ", url)
@@ -259,37 +257,31 @@ func DownloadGenomeFromGenBank(accession string, outprefix string, result chan e
 	if err != nil {
 		fmt.Println("Didn't get gff file, but carrying on because FASTA is ok")
 	}
-	result <- nil
 }
 
 
 func DownloadGenome(accession string, outprefix string) error {
-	downloadErr := make(chan error)
-
 	if strings.HasPrefix(accession, "GCF_") || strings.HasPrefix(accession, "GCA_") {
-		go DownloadGenomeWithDatasetsAPI(accession, outprefix, downloadErr)
+		DownloadGenomeWithDatasetsAPI(accession, outprefix)
 	} else {
-		go DownloadGenomeFromGenBank(accession, outprefix, downloadErr)
+		DownloadGenomeFromGenBank(accession, outprefix)
 	}
-	ticker := time.NewTicker(5 * time.Second)
-	defer ticker.Stop()
-loop:
-	for {
-		select {
-		case err := <-downloadErr:
-			if err != nil {
-				log.Fatalf("Error downloading %s", accession)
-			}
-			fmt.Println("Finished downloading", accession)
-            break loop
-		case <- ticker.C:
-			fmt.Print(".")
-		}
+	dlFa := outprefix + ".fa"
+	if !utils.FileExists(dlFa) {
+		log.Fatalf("FASTA file not downloaded")
 	}
-    dlFa := outprefix + ".fa"
-    tmpFa := outprefix + ".tmp.fa"
-    seqfiles.ParseSeqFile(dlFa, outprefix + ".tmp")
-    utils.RenameFile(tmpFa, dlFa)
-    return nil
+	tmpFa := outprefix + ".tmp.fa"
+	seqfiles.ParseSeqFile(dlFa, outprefix + ".tmp")
+	utils.RenameFile(tmpFa, dlFa)
+
+	// File we get that's supposed to be GFF3 can be HTML file if something
+	// is wrong. Delete if it's not GFF3
+	gff := outprefix + ".gff"
+	if utils.FileExists(gff) && seqfiles.GetFileType(gff) != seqfiles.GFF3 {
+		fmt.Println("Bad format of GFF file (probably no GFF exists for the accession). Delete it")
+		utils.DeleteFileIfExists(gff)
+	}
+
+	return nil
 }
 

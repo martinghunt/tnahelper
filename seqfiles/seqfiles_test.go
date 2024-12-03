@@ -10,7 +10,7 @@ import (
 
 func TestParseFASTA(t *testing.T) {
 	infile := filepath.Join("seqfiles_testdata", "parseFasta.in.fa.gz")
-	fileType := getFileType(infile)
+	fileType := GetFileType(infile)
 	require.Equal(t, FASTA, fileType, "Did not get filetype of FASTA")
 	outprefix := "tmp.test.ParseFasta"
 	outfile := outprefix + ".fa"
@@ -35,7 +35,7 @@ func TestParseFASTA(t *testing.T) {
 
 func TestParseFASTQ(t *testing.T) {
 	infile := filepath.Join("seqfiles_testdata", "parseFastq.in.fq")
-	fileType := getFileType(infile)
+	fileType := GetFileType(infile)
 	require.Equal(t, FASTQ, fileType, "Did not get filetype of FASTQ")
 	outprefix := "tmp.test.ParseFastq"
 	outfile := outprefix + ".fa"
@@ -51,7 +51,7 @@ func TestParseFASTQ(t *testing.T) {
 
 func TestParseGFF3(t *testing.T) {
 	infile := filepath.Join("seqfiles_testdata", "parseGFF3.in.gff")
-	fileType := getFileType(infile)
+	fileType := GetFileType(infile)
 	require.Equal(t, GFF3, fileType, "Did not get filetype of GFF3")
 	outprefix := "tmp.test.ParseGFF3"
 	outfileFa := outprefix + ".fa"
@@ -76,7 +76,7 @@ func TestParseGFF3(t *testing.T) {
 
 func TestParseGenbank(t *testing.T) {
 	infile := filepath.Join("seqfiles_testdata", "parseGenbank.in.gbk")
-	fileType := getFileType(infile)
+	fileType := GetFileType(infile)
 	require.Equal(t, GENBANK, fileType, "Did not get filetype of GENBANK")
 	outprefix := "tmp.test.ParseGenbank"
 	outfileFa := outprefix + ".fa"
