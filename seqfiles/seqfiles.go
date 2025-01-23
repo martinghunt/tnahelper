@@ -18,6 +18,7 @@ const (
 	FASTQ
 	GFF3
 	GENBANK
+	EMBL
 )
 
 func GetFileType(filename string) FileFormat {
@@ -44,6 +45,8 @@ func GetFileType(filename string) FileFormat {
 		return GFF3
 	} else if strings.HasPrefix(line, "LOCUS ") {
 		return GENBANK
+	} else if strings.HasPrefix(line, "ID ") {
+		return EMBL
 	}
 	return Unknown
 }
@@ -140,7 +143,46 @@ func parseFastqFile(infile string, outfile string) {
 	fout.Flush()
 }
 
-func parseGenbankFile(infile string, outfileSeqs string, outfileAnnot string) {
+func seqnameFromLineGenbankOrEMBL(line string, fformat FileFormat) string {
+	if fformat == GENBANK && strings.HasPrefix(line, "LOCUS ") {
+		fields := strings.Fields(strings.TrimRight(line, "\n"))
+		if len(fields) < 2 {
+			log.Fatalf("Error getting sequence name from LOCUS line of genbank file: %v", line)
+		}
+		return fields[1]
+	} else if fformat == EMBL && strings.HasPrefix(line, "ID ") {
+		fields := strings.Fields(line)
+		if len(fields) < 2 {
+			log.Fatalf("Error getting sequence name from LOCUS line of EMBL file: %v", line)
+		}
+		return strings.TrimRight(fields[1], ";")
+	}
+	return ""
+}
+
+func endGenbankOrEmblHeader(line string, fformat FileFormat) bool {
+	if fformat == GENBANK {
+		return strings.HasPrefix(line, "FEATURES")
+	} else if fformat == EMBL {
+		return line == "FH\n"
+	} else {
+		log.Fatalf("Unknown file format: %v", fformat)
+	}
+	panic("Unexpectedly reached an invalid state in endGenbankOrEmblHeader")
+}
+
+func lineMarksGebnkaOrEmblSequenceStart(line string, fformat FileFormat) bool {
+	if fformat == GENBANK {
+		return strings.HasPrefix(line, "ORIGIN")
+	} else if fformat == EMBL {
+		return strings.HasPrefix(line, "SQ   ")
+	} else {
+		log.Fatalf("Uknown file format: %v", fformat)
+	}
+	panic("Unexpectedly reached an invalid state in lineMarksGebnkaOrEmblSequenceStart")
+}
+
+func parseGenbankOrEmblFile(infile string, outfileSeqs string, outfileAnnot string, fformat FileFormat) {
 	reader, err := xopen.Ropen(infile)
 	if err != nil {
 		log.Fatalf("Error opening file %v: %v", infile, err)
@@ -193,15 +235,20 @@ func parseGenbankFile(infile string, outfileSeqs string, outfileAnnot string) {
 		} else if inSeq {
 			foutSeqs.WriteString(strings.ToUpper(seqReplaceRe.ReplaceAllString(line, "")))
 		} else if inHeader {
-			if strings.HasPrefix(line, "FEATURES") {
+			if endGenbankOrEmblHeader(line, fformat) {
 				inHeader = false
 				inFeatures = true
 			}
 		} else if inFeatures {
-			if strings.HasPrefix(line, "ORIGIN") {
+			// Genbank and EMBL feature lines are the same, except that EMBL
+			// startswith "FT", whereas Genbank is spaces
+			if fformat == EMBL && strings.HasPrefix(line, "FT ") {
+				line = strings.Replace(line, "FT", "  ", 1)
+			}
+
+			if lineMarksGebnkaOrEmblSequenceStart(line, fformat) {
 				inFeatures = false
 				if inGene {
-					//foutAnnot.WriteString(fmt.Sprintf("%v\t%v\t%v\t%v\t%v\n", currentContig, geneName, geneStart, geneEnd, geneStrand))
 					foutAnnot.WriteString(fmt.Sprintf("%v\t.\tgene\t%v\t%v\t.\t%v\t.\tID=%v\n", currentContig, geneStart, geneEnd, geneStrand, geneName))
 					geneName = ""
 					geneStart = 0
@@ -222,7 +269,6 @@ func parseGenbankFile(infile string, outfileSeqs string, outfileAnnot string) {
 					}
 					geneName += strings.TrimSpace(strings.ReplaceAll(fields[1], "\"", ""))
 				} else if line[5] != ' ' {
-					//foutAnnot.WriteString(fmt.Sprintf("%v\t%v\t%v\t%v\t%v\n", currentContig, geneName, geneStart, geneEnd, geneStrand))
 					foutAnnot.WriteString(fmt.Sprintf("%v\t.\tgene\t%v\t%v\t.\t%v\t.\tID=%v\n", currentContig, geneStart, geneEnd, geneStrand, geneName))
 					inGene = false
 					geneName = ""
@@ -260,13 +306,13 @@ func parseGenbankFile(infile string, outfileSeqs string, outfileAnnot string) {
 				geneName = "UNKNOWN"
 			}
 			continue
-		} else if strings.HasPrefix(line, "LOCUS ") {
-			fields := strings.Fields(line)
-			if len(fields) < 2 {
-				log.Fatalf("Error getting sequence name from LOCUS line of genbank file %v: %v", infile, line)
+		} else {
+			seqname := seqnameFromLineGenbankOrEMBL(line, fformat)
+			if seqname == "" {
+				continue
 			}
 			foutSeqs.WriteString(">")
-			currentContig = fields[1]
+			currentContig = seqname
 			foutSeqs.WriteString(currentContig)
 			foutSeqs.WriteString("\n")
 			inHeader = true
@@ -350,7 +396,9 @@ func ParseSeqFile(infile string, outprefix string) {
 	case GFF3:
 		parseGFF3File(infile, fastaOutfile, annotOutfile)
 	case GENBANK:
-		parseGenbankFile(infile, fastaOutfile, annotOutfile)
+		parseGenbankOrEmblFile(infile, fastaOutfile, annotOutfile, GENBANK)
+	case EMBL:
+		parseGenbankOrEmblFile(infile, fastaOutfile, annotOutfile, EMBL)
 	default:
 		log.Fatalf("Error: could not determine type of file %v", infile)
 	}

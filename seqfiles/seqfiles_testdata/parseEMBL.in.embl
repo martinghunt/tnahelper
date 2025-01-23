@@ -1,0 +1,87 @@
+ID   Contig1; foo; bar
+XX
+AC   abc123; abc124;
+XX
+DT   01-JAN-2000
+XX
+KW   foo bar
+XX
+FH   Key             Location/Qualifiers
+FH
+FT   source          1..100
+FT                   /organism="Genus species"
+FT                   /db_xref="taxon:1"
+FT                   /chromosome="source1"
+FT                   /map="9"
+FT   CDS             <1..206
+FT                   /codon_start=3
+FT                   /product="p"
+FT                   /protein_id="AA42"
+FT                   /translation="ACACACACACACACACCACACACAACCACACACACACACACACA
+FT                   ACACACACACCACCCACACCCACA"
+FT   gene            42..60
+FT                   /gene="gene1"
+FT                   /locus_tag="gene1_lt"
+FT   CDS             42..60
+FT                   /gene="gene1"
+FT                   /note="fml"
+FT                   /codon_start=1
+FT                   /function="does stuff"
+FT                   /product="produces this"
+FT                   /protein_id="AA42"
+FT                   /translation="CACCACACCCACCACCACCAC"
+FT   gene            complement(80..100)
+FT                   /gene="gene2"
+FT   CDS             complement(80..100)
+FT                   /gene="gene2"
+FT                   /codon_start=1
+FT                   /product="stuff"
+FT                   /translation="AAAA"
+FT   gene            complement(80..100)
+FT                   /gene="gene3"
+FT                   /locus_tag="gene3_lt"
+FT   gene            order(25..20,29..28)
+FT                   /locus_tag="gene4"
+FT   CDS             join(25..20,29..28)
+FT                   /locus_tag="gene4"
+FT                   /note="blah"
+XX
+SQ   Sequence 100 BP; 25 A; 25 C; 25 G; 25 T; 0 other;
+     gatcctccat atacaacggt atctccacct caggtttaga tctcaacaac ggaaccattg        60
+     ccgacatgag acagttaggt atcgtcgaga gttacaagct aaaacgagca gtagtcagct       120
+     ctgcatctga agccgctgaa gttctactaa gggtggataa catcat                      166
+//
+ID   Contig2
+XX
+AC   123456;
+XX
+FH   Key             Location/Qualifiers
+FH
+FT   source          1..5028
+FT                   /organism="Foo bar"
+FT                   /db_xref="taxon:2112"
+FT                   /chromosome="I"
+FT   gene            687..3158
+FT                   /gene="gene42"
+FT   CDS             687..3158
+FT                   /note="noted"
+FT                   /codon_start=1
+FT                   /function="does some things"
+FT                   /product="makes some stuff"
+FT                   /db_xref="GI:2112"
+FT                   /translation="MAAACACACCACAACCACACAAACACCACACCACACCACACACA
+FT                   ACCACCACACACA"
+FT   gene            complement(200..100)
+FT                   /gene="gene43"
+FT   CDS             complement(3300..4037)
+FT                   /gene="REV7"
+FT                   /codon_start=1
+FT                   /product="p"
+FT                   /protein_id="i"
+FT                   /db_xref="GI:1"
+FT                   /translation="MACACCACCACACACCACACACCACCACACA"
+XX
+SQ   Sequence 117 BP; 30 A; 30 C; 30 G; 27 T; 0 other;
+     gatcctccat atacaacggt atctccacct caggtttaga tctcaacaac ggaaccattg        60
+     ccgacatgag acagttaggt atcgtcgaga gttacaagct aaaacgagca gtagtca          117
+//
