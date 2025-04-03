@@ -165,3 +165,38 @@ func TestParseEMBL(t *testing.T) {
 	require.True(t, filesEqual, "Annotation file %s expected contents incorrect", outfileFa)
 	utils.DeleteFileIfExists(outfileAnnot)
 }
+
+func TestGaps(t *testing.T) {
+	infile := filepath.Join("seqfiles_testdata", "getGapsFromSingleLineFasta.fa")
+	gaps := []Gap{}
+	gaps = append(gaps, Gap{SeqName: "one", Start: 1, End: 2})
+	gaps = append(gaps, Gap{SeqName: "two", Start: 4, End: 6})
+	gaps = append(gaps, Gap{SeqName: "three", Start: 1, End: 2})
+	require.Equal(t, gaps, getGapsFromSingleLineFasta(infile, 2), "Incorrect gaps in TestGetGapsFromSingleLineFasta")
+	gaps = []Gap{}
+	gaps = append(gaps, Gap{SeqName: "one", Start: 1, End: 2})
+	gaps = append(gaps, Gap{SeqName: "one", Start: 8, End: 8})
+	gaps = append(gaps, Gap{SeqName: "two", Start: 4, End: 6})
+	gaps = append(gaps, Gap{SeqName: "two", Start: 14, End: 14})
+	gaps = append(gaps, Gap{SeqName: "two", Start: 16, End: 16})
+	gaps = append(gaps, Gap{SeqName: "three", Start: 1, End: 2})
+	require.Equal(t, gaps, getGapsFromSingleLineFasta(infile), "Incorrect gaps in TestGetGapsFromSingleLineFasta")
+
+	outfileAnnot := "tmp.test.gaps.gff"
+	utils.DeleteFileIfExists(outfileAnnot)
+	addGapsToAnnotFile(gaps, outfileAnnot)
+	expectFileAnnot := filepath.Join("seqfiles_testdata", "gaps.expect.1.gff")
+	cmp := equalfile.New(nil, equalfile.Options{})
+	filesEqual, err := cmp.CompareFile(expectFileAnnot, outfileAnnot)
+	require.NoError(t, err, "Error comparing annotation files %s, %s", expectFileAnnot, outfileAnnot)
+	require.True(t, filesEqual, "Annotation file %s expected contents incorrect", outfileAnnot)
+
+	gaps = gaps[:0]
+	gaps = append(gaps, Gap{SeqName: "four", Start: 42, End: 142})
+	addGapsToAnnotFile(gaps, outfileAnnot)
+	expectFileAnnot = filepath.Join("seqfiles_testdata", "gaps.expect.2.gff")
+	filesEqual, err = cmp.CompareFile(expectFileAnnot, outfileAnnot)
+	require.NoError(t, err, "Error comparing annotation files %s, %s", expectFileAnnot, outfileAnnot)
+	require.True(t, filesEqual, "Annotation file %s expected contents incorrect", outfileAnnot)
+	utils.DeleteFileIfExists(outfileAnnot)
+}
