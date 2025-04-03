@@ -2,9 +2,11 @@ package seqfiles
 
 import (
 	"fmt"
+	"github.com/martinghunt/tnahelper/utils"
 	"github.com/shenwei356/xopen"
 	"io"
 	"log"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -20,6 +22,12 @@ const (
 	GENBANK
 	EMBL
 )
+
+type Gap struct {
+	SeqName string
+	Start   int
+	End     int
+}
 
 func GetFileType(filename string) FileFormat {
 	reader, err := xopen.Ropen(filename)
@@ -384,7 +392,71 @@ func parseGFF3File(infile string, outfileSeqs string, outfileAnnot string) {
 	foutAnnot.Flush()
 }
 
-func ParseSeqFile(infile string, outprefix string) {
+func getGapsFromSingleLineFasta(infile string, minimumGapLen ...int) []Gap {
+	minGapLen := 1
+	if len(minimumGapLen) > 0 {
+		minGapLen = minimumGapLen[0]
+	}
+	gaps := []Gap{}
+	if minGapLen <= 0 {
+		return gaps
+	}
+	gapRegex := regexp.MustCompile(fmt.Sprintf(`N{%d,}`, minGapLen))
+
+	reader, err := xopen.Ropen(infile)
+	if err != nil {
+		log.Fatalf("Error opening file %v: %v", infile, err)
+	}
+	defer func() {
+		if err := reader.Close(); err != nil {
+			log.Fatalf("Error closing file %v: %v", infile, err)
+		}
+	}()
+	currentName := ""
+
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+
+			log.Fatalf("read file line error: %v", err)
+		}
+
+		if strings.HasPrefix(line, ">") {
+			fields := strings.Fields(line)
+			currentName = strings.TrimPrefix(fields[0], ">")
+		} else {
+			for _, match := range gapRegex.FindAllStringIndex(line, -1) {
+				gaps = append(gaps, Gap{SeqName: currentName, Start: match[0] + 1, End: match[1]})
+			}
+		}
+	}
+	return gaps
+}
+
+func addGapsToAnnotFile(gaps []Gap, filename string) {
+	annotFileExists := utils.FileExists(filename)
+	fout, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return
+	}
+	defer fout.Close()
+	if !(annotFileExists) {
+		fout.WriteString("##gff-version 3\n")
+	}
+	for _, gap := range gaps {
+		fout.WriteString(fmt.Sprintf("%v\tTNA\tgap\t%v\t%v\t.\t+\t.\tname=gap\n", gap.SeqName, gap.Start, gap.End))
+	}
+}
+
+func ParseSeqFile(infile string, outprefix string, minimumGapLen ...int) {
+	minGapLen := 1
+	if len(minimumGapLen) > 0 {
+		minGapLen = minimumGapLen[0]
+	}
 	filetype := GetFileType(infile)
 	fastaOutfile := outprefix + ".fa"
 	annotOutfile := outprefix + ".gff"
@@ -401,5 +473,9 @@ func ParseSeqFile(infile string, outprefix string) {
 		parseGenbankOrEmblFile(infile, fastaOutfile, annotOutfile, EMBL)
 	default:
 		log.Fatalf("Error: could not determine type of file %v", infile)
+	}
+	gaps := getGapsFromSingleLineFasta(fastaOutfile, minGapLen)
+	if len(gaps) > 0 {
+		addGapsToAnnotFile(gaps, annotOutfile)
 	}
 }

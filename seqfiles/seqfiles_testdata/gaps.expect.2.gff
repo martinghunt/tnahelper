@@ -1,0 +1,8 @@
+##gff-version 3
+one	TNA	gap	1	2	.	+	.	name=gap
+one	TNA	gap	8	8	.	+	.	name=gap
+two	TNA	gap	4	6	.	+	.	name=gap
+two	TNA	gap	14	14	.	+	.	name=gap
+two	TNA	gap	16	16	.	+	.	name=gap
+three	TNA	gap	1	2	.	+	.	name=gap
+four	TNA	gap	42	142	.	+	.	name=gap

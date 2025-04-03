@@ -6,6 +6,7 @@ import (
 	"log"
 	"math/rand"
 	"path/filepath"
+	"strings"
 )
 
 func init() {
@@ -85,7 +86,9 @@ func MakeTestFiles(outdir string) {
 	fout.WriteString(">g1.c0\n")
 	fout.WriteString(string(makeRandomSeq(100)) + "\n")
 	fout.WriteString(">g1.c1\n")
-	fout.WriteString(string(makeRandomSeq(900)))
+	fout.WriteString(string(makeRandomSeq(50)))
+	fout.WriteString(strings.Repeat("N", 50))
+	fout.WriteString(string(makeRandomSeq(800)))
 	fout.WriteString(string(commonT))
 	fout.WriteString(string(makeRandomSeq(900)) + "\n")
 	fout.WriteString(">g1.c2\n")
@@ -114,7 +117,9 @@ func MakeTestFiles(outdir string) {
 	fout.WriteString("g2.c10\t.\tgene\t150\t410\t.\t+\t.\tID=gene43;foo=bar;name=name_gene43\n")
 	fout.WriteString("##FASTA\n")
 	fout.WriteString(">g2.c1\n")
-	fout.WriteString(string(makeRandomSeq(1000)) + "\n")
+	fout.WriteString(string(makeRandomSeq(800)))
+	fout.WriteString(string(strings.Repeat("N", 5)))
+	fout.WriteString(string(makeRandomSeq(195)) + "\n")
 	fout.WriteString(">g2.c2\n")
 	fout.WriteString(string(commonT) + "\n")
 	fout.WriteString(">g2.c3\n")
@@ -122,7 +127,9 @@ func MakeTestFiles(outdir string) {
 	fout.WriteString(">g2.c4\n")
 	fout.WriteString(string(bot4) + "\n")
 	fout.WriteString(">g2.c5\n")
-	fout.WriteString(string(makeRandomSeq(800)) + "\n")
+	fout.WriteString(string(makeRandomSeq(300)))
+	fout.WriteString(string(strings.Repeat("N", 100)))
+	fout.WriteString(string(makeRandomSeq(400)) + "\n")
 	fout.WriteString(">g2.c6\n")
 	fout.WriteString(string(utils.ReverseComplement(bot6)) + "\n")
 	fout.WriteString(">g2.c7\n")

@@ -17,18 +17,20 @@ func main() {
 	var outprefix string
 	var outdir string
 	var bindir string
+	minGapLen := -1
 
 	// ---------------- import_seqfile ---------------------
 	var cmdImportSeqfile = &cobra.Command{
 		Use:   "import_seqfile",
 		Short: "Import sequence file",
 		Run: func(cmd *cobra.Command, args []string) {
-			seqfiles.ParseSeqFile(infile, outprefix)
+			seqfiles.ParseSeqFile(infile, outprefix, minGapLen)
 		},
 	}
 
 	cmdImportSeqfile.Flags().StringVarP(&infile, "infile", "i", "", "REQUIRED. Input sequence file")
 	cmdImportSeqfile.Flags().StringVarP(&outprefix, "outprefix", "o", "", "REQUIRED. Prefix of output files")
+	cmdImportSeqfile.Flags().IntVarP(&minGapLen, "mingap", "g", -1, "Minimum length of run of Ns to count as a gap and get added to annotation. Anything <= 0 means do not add any gaps")
 	cmdImportSeqfile.MarkFlagRequired("infile")
 	cmdImportSeqfile.MarkFlagRequired("outprefix")
 	rootCmd.AddCommand(cmdImportSeqfile)
